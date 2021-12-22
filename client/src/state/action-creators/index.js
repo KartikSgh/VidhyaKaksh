@@ -6,6 +6,7 @@ export const testAdd = (value) => {
     });
   };
 };
+
 export const testSubtract = (value) => {
   return (dispatch) => {
     dispatch({
