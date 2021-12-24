@@ -1,9 +1,10 @@
 module.exports = function (app) {
   app.get("/logout", (req, res) => {
     if (req.session.destroy()) {
-      res.send([{ loggedout: true }]);
+      res.send("Logged out");
     } else {
-      res.send([{ loggedout: false }]);
+      res.status(500);
+      res.send("Server Error");
     }
   });
 };

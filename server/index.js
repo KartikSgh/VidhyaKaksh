@@ -48,6 +48,9 @@ require("./routes/loginRoute.js")(app);
 //logout request
 require("./routes/logoutRoute.js")(app);
 
+//home request
+require("./routes/homeRoute.js")(app, db);
+
 app.listen(3001, () => {
   console.log("running on port 3001");
 });

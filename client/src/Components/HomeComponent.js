@@ -1,3 +1,6 @@
+import { bindActionCreators } from "redux";
+import { actionCreators } from "../state/index.js";
+import Axios from "axios";
 import { Link } from "react-router-dom";
 import ClassCardComponent from "./ClassCardComponent";
 import "../CSS/common.css";
@@ -10,7 +13,94 @@ import image1 from "../images/image1.png";
 import image2 from "../images/image2.jpg";
 import image3 from "../images/image3.jpg";
 import image4 from "../images/image4.jpg";
+import { useSelector, useDispatch } from "react-redux";
+import { useState } from "react";
+import logout from "./utility/logout.js";
+
 const HomeComponent = () => {
+  const email = useSelector((state) => state.email);
+
+  const dispatch = useDispatch();
+
+  const { addClassCard } = bindActionCreators(actionCreators, dispatch);
+
+  const [className, setClassName] = useState("");
+  const [classSubject, setClassSubject] = useState("");
+  const [classCode, setClassCode] = useState("");
+  const [backgroundImage, setBackgroundImage] = useState("image1.png");
+
+  //function calls when submit button of ADD CLASS modal is clicked
+  function handleAddNewClass() {
+    Axios.post("http://localhost:3001/home/addClass", {
+      email: email,
+      className: className,
+      classSubject: classSubject,
+      bgImage: backgroundImage,
+    })
+      .then((res) => {
+        addClassCard({
+          classId: res.data.classCode,
+          name: className,
+          subject: classSubject,
+          bgImage: backgroundImage,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  function handleAddExistingClass() {
+    document.getElementById("errorInJoinClass").innerHTML = "";
+    var reg = /^\d+$/;
+    if (!reg.test(classCode)) {
+      document.getElementById("errorInJoinClass").innerHTML =
+        "Only number is allowed in code.";
+      return;
+    }
+
+    Axios.post("http://localhost:3001/home/joinClass", {
+      email: email,
+      classCode: parseInt(classCode),
+    })
+      .then((res) => {
+        addClassCard({
+          classId: res.data.classId,
+          name: res.data.name,
+          subject: res.data.subject,
+          bgImage: res.data.bgImage,
+        });
+      })
+      .catch((err) => {
+        if (err.response) {
+          document.getElementById("errorInJoinClass").innerHTML =
+            err.response.data;
+        } else {
+          console.log(err);
+        }
+      });
+  }
+
+  //function to highlight the image choosen
+  function handleBackgroundImageChange(image) {
+    document
+      .getElementById("image1.png")
+      .classList.remove("border", "border-4", "border-primary");
+    document
+      .getElementById("image2.jpg")
+      .classList.remove("border", "border-4", "border-primary");
+    document
+      .getElementById("image3.jpg")
+      .classList.remove("border", "border-4", "border-primary");
+    document
+      .getElementById("image4.jpg")
+      .classList.remove("border", "border-4", "border-primary");
+    document
+      .getElementById(image)
+      .classList.add("border", "border-4", "border-primary");
+    setBackgroundImage(image);
+  }
+
   return (
     <>
       {/* {header} */}
@@ -47,16 +137,17 @@ const HomeComponent = () => {
           bg-white
         "
           >
-            <img
-              className="popup__avatar cursor-pointer"
-              src={personsvg}
-              alt="Avatar"
-            />
-            <p className="popup__email">youremail@gmail.com</p>
-            <a className="popup__link" href="edit.html" target="_blank">
+            <img className="popup__avatar" src={personsvg} alt="Avatar" />
+            <p className="popup__email">{email}</p>
+            <Link className="popup__link" to="#" target="_blank">
               Manage your account
-            </a>
-            <div className="popup__logout mt-auto cursor-pointer">Log Out</div>
+            </Link>
+            <div
+              className="popup__logout mt-auto cursor-pointer"
+              onClick={() => logout()}
+            >
+              Log Out
+            </div>
 
             <div className="popup__pseudo"></div>
           </div>
@@ -66,16 +157,11 @@ const HomeComponent = () => {
           <span className="flex-center text-nowrap d-none d-md-flex">
             Welcome student
           </span>
-          <input className="form-control py-2" placeholder="Search for class" />
-          <button
-            className="btn btn-primary py-2"
-            style={{ whiteSpace: "nowrap" }}
-          >
-            Search
-          </button>
+
           <button
             className="btn btn-dark py-2"
             style={{ whiteSpace: "nowrap" }}
+            onClick={() => logout()}
           >
             Log Out
           </button>
@@ -92,8 +178,10 @@ const HomeComponent = () => {
           data-bs-toggle="modal"
           data-bs-target="#modal-student"
         >
-          Find class
+          Join class
         </button>
+
+        <p className="text-danger mt-2" id="errorInJoinClass"></p>
 
         <div
           className="modal fade"
@@ -120,6 +208,7 @@ const HomeComponent = () => {
                   <input
                     className="form-control py-3"
                     placeholder="Class code"
+                    onChange={(e) => setClassCode(e.target.value)}
                   />
                 </div>
 
@@ -136,9 +225,10 @@ const HomeComponent = () => {
                     type="button"
                     className="btn btn-primary py-2"
                     style={{ whiteSpace: "nowrap" }}
+                    onClick={() => handleAddExistingClass()}
                     data-bs-dismiss="modal"
                   >
-                    Find
+                    Join
                   </button>
                 </div>
               </form>
@@ -185,16 +275,15 @@ const HomeComponent = () => {
                     <input
                       className="form-control py-3"
                       placeholder="Class Name"
+                      onChange={(e) => setClassName(e.target.value)}
                     />
                   </div>
                   <div className="mb-3">
                     <input
                       className="form-control py-3"
                       placeholder="Subject"
+                      onChange={(e) => setClassSubject(e.target.value)}
                     />
-                  </div>
-                  <div className="mb-3">
-                    <input className="form-control py-3" placeholder="Room" />
                   </div>
                   <div>
                     <p>Choose background</p>
@@ -203,28 +292,44 @@ const HomeComponent = () => {
                         <img
                           className="img-cover rounded"
                           src={image1}
+                          id="image1.png"
                           alt="Background"
+                          onClick={() =>
+                            handleBackgroundImageChange("image1.png")
+                          }
                         />
                       </div>
                       <div className="background h-100 cursor-pointer">
                         <img
                           className="img-cover rounded"
                           src={image2}
+                          id="image2.jpg"
                           alt="Background"
+                          onClick={() =>
+                            handleBackgroundImageChange("image2.jpg")
+                          }
                         />
                       </div>
                       <div className="background h-100 cursor-pointer">
                         <img
                           className="img-cover rounded"
                           src={image3}
+                          id="image3.jpg"
                           alt="Background"
+                          onClick={() =>
+                            handleBackgroundImageChange("image3.jpg")
+                          }
                         />
                       </div>
                       <div className="background h-100 cursor-pointer">
                         <img
                           className="img-cover rounded"
                           src={image4}
+                          id="image4.jpg"
                           alt="Background"
+                          onClick={() =>
+                            handleBackgroundImageChange("image4.jpg")
+                          }
                         />
                       </div>
                     </div>
@@ -242,6 +347,7 @@ const HomeComponent = () => {
                   <button
                     type="button"
                     className="btn btn-primary"
+                    onClick={() => handleAddNewClass()}
                     data-bs-dismiss="modal"
                   >
                     Add
