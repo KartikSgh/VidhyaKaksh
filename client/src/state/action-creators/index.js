@@ -60,3 +60,12 @@ export const deleteClassCard = (cardId) => {
     });
   };
 };
+
+export const changeRole = (role) => {
+  return (dispatch) => {
+    dispatch({
+      type: "changeRole",
+      payload: role,
+    });
+  };
+};

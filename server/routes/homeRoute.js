@@ -72,7 +72,7 @@ module.exports = function (app, db) {
 
   app.get("/home", (req, res) => {
     const sqlFetch =
-      "select classId,name,subject,bgImage from classes where classId in (select a.classId from people a where a.email=?)";
+      "select a.classId,a.name,a.subject,a.bgImage,b.role from classes a join people b on a.classId=b.classId where b.email=?";
     db.query(sqlFetch, [req.query.email], (err, result) => {
       if (err) {
         res.status(500);
@@ -160,7 +160,7 @@ module.exports = function (app, db) {
     );
   });
 
-  app.post("/home/delete", (req, res) => {
+  app.delete("/home/delete", (req, res) => {
     const sqlDelete = "delete from people where classId=? and email=?";
     db.query(sqlDelete, [req.body.classId, req.body.email], (err, result) => {
       if (err) {

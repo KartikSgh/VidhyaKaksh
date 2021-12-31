@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(
   cors({
     origin: ["http://localhost:3000"],
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "DELETE"],
     credentials: true,
   })
 );
@@ -40,6 +40,7 @@ const db = mysql.createPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
+  timezone: "+00:00",
 });
 
 //login requests
@@ -50,6 +51,12 @@ require("./routes/logoutRoute.js")(app);
 
 //home request
 require("./routes/homeRoute.js")(app, db);
+
+//class request
+require("./routes/classRoute.js")(app, db);
+
+//people request
+require("./routes/peopleRoute.js")(app, db);
 
 app.listen(3001, () => {
   console.log("running on port 3001");
