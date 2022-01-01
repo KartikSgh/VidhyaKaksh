@@ -43,7 +43,7 @@ module.exports = function (app, db) {
 
   app.get("/class/announcements", (req, res) => {
     const sqlFetch =
-      "select b.username,a.message,a.dateAndTime from announcement a join users b on a.email=b.email where a.classId=?";
+      "select b.username,a.message,a.dateAndTime from announcement a join users b on a.email=b.email where a.classId=? order by a.dateAndTime DESC";
     db.query(sqlFetch, [req.query.classId], (err, result) => {
       if (err) {
         res.status(500);

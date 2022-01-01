@@ -1,4 +1,4 @@
-const reducer = (state = 0, action) => {
+const reducer = (state = 1, action) => {
   if (action.type === "changeRole") {
     return action.payload;
   } else {

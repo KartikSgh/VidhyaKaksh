@@ -4,7 +4,7 @@ import "../CSS/reset.css";
 import "../CSS/class.css";
 import personsvg from "../images/person.svg";
 import { useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import HeaderComponent from "./HeaderComponent";
 import Axios from "axios";
 
@@ -20,6 +20,40 @@ const ClassComponent = () => {
   const [announcements, setAnnouncements] = useState([]);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
+
+  const updateAnnouncements = useCallback(() => {
+    Axios.get("http://localhost:3001/class/announcements", {
+      params: {
+        classId: classCode,
+      },
+    })
+      .then((res) => {
+        setAnnouncements(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+        if (err.response) {
+          console.log(err.response.data);
+        }
+      });
+  }, [classCode]);
+
+  const updateComments = useCallback(() => {
+    Axios.get("http://localhost:3001/class/comments", {
+      params: {
+        classId: classCode,
+      },
+    })
+      .then((res) => {
+        setComments(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+        if (err.response) {
+          console.log(err.response.data);
+        }
+      });
+  }, [classCode]);
 
   useEffect(() => {
     Axios.get("http://localhost:3001/class", {
@@ -41,7 +75,7 @@ const ClassComponent = () => {
           }
         }
       });
-  }, [email, classCode, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [email, classCode, navigate, updateAnnouncements, updateComments]);
 
   function handleAnnouncementPost() {
     Axios.post("http://localhost:3001/class/postAnnouncement", {
@@ -60,23 +94,6 @@ const ClassComponent = () => {
       });
   }
 
-  function updateAnnouncements() {
-    Axios.get("http://localhost:3001/class/announcements", {
-      params: {
-        classId: classCode,
-      },
-    })
-      .then((res) => {
-        setAnnouncements(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-        if (err.response) {
-          console.log(err.response.data);
-        }
-      });
-  }
-
   function handlePostComment(messageDate) {
     document.getElementById("comment").value = "";
     Axios.post("http://localhost:3001/class/postComment", {
@@ -86,23 +103,6 @@ const ClassComponent = () => {
     })
       .then(() => {
         updateComments();
-      })
-      .catch((err) => {
-        console.log(err);
-        if (err.response) {
-          console.log(err.response.data);
-        }
-      });
-  }
-
-  function updateComments() {
-    Axios.get("http://localhost:3001/class/comments", {
-      params: {
-        classId: classCode,
-      },
-    })
-      .then((res) => {
-        setComments(res.data);
       })
       .catch((err) => {
         console.log(err);

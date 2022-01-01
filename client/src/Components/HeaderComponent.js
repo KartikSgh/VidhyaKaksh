@@ -58,6 +58,12 @@ const HeaderComponent = () => {
         >
           People
         </Link>
+        <Link
+          className="d-flex align-items-center text-secondary"
+          to="/class/material"
+        >
+          Material
+        </Link>
         {renderGradeNav()}
       </nav>
 
