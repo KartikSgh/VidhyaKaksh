@@ -16,7 +16,7 @@ const ClassCardComponent = () => {
 
   const dispatch = useDispatch();
 
-  const { updateClassCardList, changeClassCode, deleteClassCard } =
+  const { updateClassCardList, changeClassCode, deleteClassCard, changeRole } =
     bindActionCreators(actionCreators, dispatch);
 
   useEffect(() => {
@@ -31,12 +31,14 @@ const ClassCardComponent = () => {
       .catch((err) => {
         console.log(err);
       });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [email, updateClassCardList]);
 
   function handleCardDelete(code) {
-    Axios.post("http://localhost:3001/home/delete", {
-      email: email,
-      classId: code,
+    Axios.delete("http://localhost:3001/home/delete", {
+      data: {
+        email: email,
+        classId: code,
+      },
     })
       .then((res) => {
         console.log(res.data);
@@ -52,6 +54,7 @@ const ClassCardComponent = () => {
       var classCode = card.classId;
       var className = card.name;
       var classSubject = card.subject;
+      var role = card.role;
       var bgImage = "";
       if (card.bgImage === "image1.png") {
         bgImage = image1;
@@ -97,6 +100,7 @@ const ClassCardComponent = () => {
               className="btn btn-primary mt-auto py-2"
               onClick={() => {
                 changeClassCode(classCode);
+                changeRole(role);
                 navigate("/class");
               }}
             >

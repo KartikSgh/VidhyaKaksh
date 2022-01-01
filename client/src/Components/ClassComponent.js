@@ -1,84 +1,275 @@
-import { Link } from "react-router-dom";
-import "../CSS/common.css";
+import { Link, useNavigate } from "react-router-dom";
 import "../CSS/main.css";
 import "../CSS/reset.css";
 import "../CSS/class.css";
 import personsvg from "../images/person.svg";
-import applesvg from "../images/apple.svg";
-import uploadsvg from "../images/upload.svg";
+import { useSelector } from "react-redux";
+import { useCallback, useEffect, useState } from "react";
+import HeaderComponent from "./HeaderComponent";
+import Axios from "axios";
 
 const ClassComponent = () => {
+  const navigate = useNavigate();
+
+  const email = useSelector((state) => state.email);
+  const classCode = useSelector((state) => state.classCode);
+
+  const [name, setName] = useState("");
+  const [subject, setSubject] = useState("");
+  const [announcement, setAnnouncement] = useState("");
+  const [announcements, setAnnouncements] = useState([]);
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState([]);
+
+  const updateAnnouncements = useCallback(() => {
+    Axios.get("http://localhost:3001/class/announcements", {
+      params: {
+        classId: classCode,
+      },
+    })
+      .then((res) => {
+        setAnnouncements(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+        if (err.response) {
+          console.log(err.response.data);
+        }
+      });
+  }, [classCode]);
+
+  const updateComments = useCallback(() => {
+    Axios.get("http://localhost:3001/class/comments", {
+      params: {
+        classId: classCode,
+      },
+    })
+      .then((res) => {
+        setComments(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+        if (err.response) {
+          console.log(err.response.data);
+        }
+      });
+  }, [classCode]);
+
+  useEffect(() => {
+    Axios.get("http://localhost:3001/class", {
+      params: {
+        classId: classCode,
+      },
+    })
+      .then((res) => {
+        setName(res.data.name);
+        setSubject(res.data.subject);
+        updateAnnouncements();
+        updateComments();
+      })
+      .catch((err) => {
+        console.log(err);
+        if (err.response) {
+          if (err.response.status === 400) {
+            navigate("/home");
+          }
+        }
+      });
+  }, [email, classCode, navigate, updateAnnouncements, updateComments]);
+
+  function handleAnnouncementPost() {
+    Axios.post("http://localhost:3001/class/postAnnouncement", {
+      classId: classCode,
+      email: email,
+      message: announcement,
+    })
+      .then(() => {
+        updateAnnouncements();
+      })
+      .catch((err) => {
+        console.log(err);
+        if (err.response) {
+          console.log(err.response.data);
+        }
+      });
+  }
+
+  function handlePostComment(messageDate) {
+    document.getElementById("comment").value = "";
+    Axios.post("http://localhost:3001/class/postComment", {
+      messageDate: messageDate,
+      email: email,
+      message: comment,
+    })
+      .then(() => {
+        updateComments();
+      })
+      .catch((err) => {
+        console.log(err);
+        if (err.response) {
+          console.log(err.response.data);
+        }
+      });
+  }
+
+  function handleDeletePost(time) {
+    Axios.delete("http://localhost:3001/class/deletePost", {
+      data: {
+        time: time,
+      },
+    })
+      .then(() => {
+        updateAnnouncements();
+        updateComments();
+      })
+      .catch((err) => {
+        console.log(err);
+        if (err.response) {
+          console.log(err.response.data);
+        }
+      });
+  }
+
+  function handleDeleteComment(time) {
+    Axios.delete("http://localhost:3001/class/deleteComment", {
+      data: {
+        time: time,
+      },
+    })
+      .then(() => {
+        updateComments();
+      })
+      .catch((err) => {
+        console.log(err);
+        if (err.response) {
+          console.log(err.response.data);
+        }
+      });
+  }
+
+  function renderComments(messageDate) {
+    var arr = [];
+    for (var i = 0; i < comments.length; i++) {
+      if (messageDate === comments[i].messageDate) {
+        arr.push(comments[i]);
+      }
+    }
+    if (arr.length === 0) {
+      return null;
+    } else {
+      return (
+        <>
+          <div className="fw-bold text-decoration-underline mb-4">
+            Comments:
+          </div>
+          {arr.map((comment) => {
+            var name = comment.username;
+            var time = comment.dateAndTime
+              .replace(".000Z", "")
+              .replace("T", " ");
+            var text = comment.message;
+            return (
+              <ul key={time} className="mt-2 border-bottom">
+                <li>
+                  <div
+                    className="
+                      d-flex
+                      align-items-center
+                      justify-content-between
+                      mb-3
+                    "
+                  >
+                    <div className="d-flex align-items-center">
+                      <img
+                        className="avatar me-3"
+                        src={personsvg}
+                        alt="Avatar"
+                      />
+                      <div>
+                        <h3 className="fs-6">{name}</h3>
+                        <time className="text-black-50">{time}</time>
+                      </div>
+                    </div>
+                    <div
+                      className="btn btn-dark text-white"
+                      onClick={() => {
+                        handleDeleteComment(time);
+                      }}
+                    >
+                      &#x2716;
+                    </div>
+                  </div>
+                  <p>{text}</p>
+                </li>
+              </ul>
+            );
+          })}
+        </>
+      );
+    }
+  }
+
+  function renderAnnouncements() {
+    return announcements.map((message) => {
+      var username = message.username;
+      var text = message.message;
+      var dateAndTime = message.dateAndTime
+        .replace(".000Z", "")
+        .replace("T", " ");
+
+      return (
+        <ul key={dateAndTime}>
+          <li className="bg-white px-3 py-4 rounded shadow">
+            <div className="d-flex align-items-center justify-content-between">
+              <div className="d-flex align-items-center mb-3">
+                <img className="avatar me-3" src={personsvg} alt="Avatar" />
+                <div>
+                  <h3 className="fs-5">{username}</h3>
+                  <time className="text-black-50">{dateAndTime}</time>
+                </div>
+              </div>
+              <div
+                className="btn btn-dark text-white"
+                onClick={() => {
+                  handleDeletePost(dateAndTime);
+                }}
+              >
+                &#x2716;
+              </div>
+            </div>
+
+            <p className="border-bottom pb-3">{text}</p>
+
+            {renderComments(message.dateAndTime)}
+
+            <div className="d-flex align-items-center mt-4">
+              <img className="avatar me-3" src={personsvg} alt="Avatar" />
+              <input
+                className="flex-grow-1 border me-2 p-2"
+                id="comment"
+                placeholder="Write your comment..."
+                onChange={(e) => {
+                  setComment(e.target.value);
+                }}
+              />
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  handlePostComment(dateAndTime);
+                }}
+              >
+                Send
+              </button>
+            </div>
+          </li>
+        </ul>
+      );
+    });
+  }
+
   return (
     <>
-      <header
-        className="
-        fixed-top
-        header
-        shadow
-        d-flex
-        align-content-center
-        gap-5
-        px-4
-        py-3
-        bg-white
-      "
-      >
-        <Link to="/" className="logo mr-3">
-          <img src={applesvg} alt="Logo" />
-        </Link>
-
-        <nav className="d-flex align-items-center gap-3">
-          <Link
-            className="d-flex align-items-center text-secondary"
-            to="/class"
-          >
-            Stream
-          </Link>
-          <Link
-            className="d-flex align-items-center text-secondary"
-            to="/class/classwork"
-          >
-            Classwork
-          </Link>
-          <Link
-            className="d-flex align-items-center text-secondary"
-            to="/class/people"
-          >
-            People
-          </Link>
-        </nav>
-
-        <div className="popup ms-auto">
-          <div className="avatar me-3 cursor-pointer">
-            <img src={personsvg} alt="Avatar" />
-          </div>
-
-          <div
-            className="
-            popup__content
-            d-flex
-            flex-column
-            align-items-center
-            shadow
-            rounded-3
-            bg-white
-          "
-          >
-            <img
-              className="popup__avatar cursor-pointer"
-              src={personsvg}
-              alt="Avatar"
-            />
-            <p className="popup__email">youremail@gmail.com</p>
-            <Link className="popup__link" to="/" target="_blank">
-              Manage your account
-            </Link>
-            <div className="popup__logout mt-auto cursor-pointer">Log Out</div>
-
-            <div className="popup__pseudo"></div>
-          </div>
-        </div>
-      </header>
+      <HeaderComponent />
 
       <main className="container">
         {/* <!-- Banner --> */}
@@ -96,18 +287,14 @@ const ClassComponent = () => {
           rounded
         "
         >
-          <h1 className="banner__class">Front end class</h1>
-          <div className="fs-4">
-            <span>Teacher: </span>
-            <span className="banner__teacher">Teacher name</span>
-          </div>
+          <h1 className="banner__class">{name}</h1>
           <div className="fs-4">
             <span>Subject: </span>
-            <span className="banner__subject">HTML, CSS, JavaScript</span>
+            <span className="banner__subject">{subject}</span>
           </div>
           <div className="fs-4">
             <span>Room: </span>
-            <span className="banner__room">1234</span>
+            <span className="banner__room">{classCode}</span>
           </div>
         </section>
 
@@ -118,7 +305,10 @@ const ClassComponent = () => {
               <div className="border pt-4 px-4 pb-5">
                 <div className="mb-4">Upcoming</div>
                 <p className="mb-5">Woohoo, no work due soon!</p>
-                <Link to="/class" className="d-block text-success text-end">
+                <Link
+                  to="/class/classwork"
+                  className="d-block text-success text-end"
+                >
                   View All
                 </Link>
               </div>
@@ -186,6 +376,9 @@ const ClassComponent = () => {
                           placeholder="Leave a comment here"
                           id="floatingTextarea2"
                           style={{ height: "100px" }}
+                          onChange={(e) => {
+                            setAnnouncement(e.target.value);
+                          }}
                         ></textarea>
                         <label
                           htmlFor="floatingTextarea2"
@@ -198,17 +391,7 @@ const ClassComponent = () => {
 
                     <div className="modal-footer d-flex justify-content-between">
                       <div>
-                        <label
-                          className="upload cursor-pointer"
-                          htmlFor="upload"
-                        >
-                          <img
-                            className="img-cover"
-                            src={uploadsvg}
-                            alt="Upload"
-                          />
-                        </label>
-                        <input id="upload" type="file" />
+                        <label className="upload"></label>
                       </div>
                       <div className="d-flex">
                         <button
@@ -222,6 +405,7 @@ const ClassComponent = () => {
                           type="button"
                           className="btn btn-primary py-2"
                           data-bs-dismiss="modal"
+                          onClick={handleAnnouncementPost}
                         >
                           Post
                         </button>
@@ -230,66 +414,7 @@ const ClassComponent = () => {
                   </div>
                 </div>
               </div>
-
-              <ul>
-                <li className="bg-white px-3 py-4 rounded shadow">
-                  <div className="d-flex align-items-center justify-content-between">
-                    <div className="d-flex align-items-center mb-3">
-                      <img
-                        className="avatar me-3"
-                        src={personsvg}
-                        alt="Avatar"
-                      />
-                      <h3 className="fs-5">Teacher</h3>
-                    </div>
-                    <div className="btn btn-dark text-white">&#x2716;</div>
-                  </div>
-
-                  <p className="border-bottom pb-3">Hi all my students!!</p>
-
-                  <div className="fw-bold text-decoration-underline mb-4">
-                    Comments:
-                  </div>
-
-                  <ul className="mt-2 border-bottom">
-                    <li>
-                      <div
-                        className="
-                        d-flex
-                        align-items-center
-                        justify-content-between
-                        mb-3
-                      "
-                      >
-                        <div className="d-flex align-items-center">
-                          <img
-                            className="avatar me-3"
-                            src={personsvg}
-                            alt="Avatar"
-                          />
-                          <div>
-                            <h3 className="fs-6">Student</h3>
-                            <time className="text-black-50">10 th 11</time>
-                          </div>
-                        </div>
-                        <div className="btn btn-dark text-white">&#x2716;</div>
-                      </div>
-                      <p>Hi there!</p>
-                    </li>
-                  </ul>
-
-                  <form className="d-flex align-items-center mt-4">
-                    <img className="avatar me-3" src={personsvg} alt="Avatar" />
-                    <input
-                      className="flex-grow-1 border me-2 p-2"
-                      placeholder="Write your comment..."
-                    />
-                    <button type="submit" className="btn btn-primary">
-                      Send
-                    </button>
-                  </form>
-                </li>
-              </ul>
+              {renderAnnouncements()}
             </div>
           </div>
         </section>
