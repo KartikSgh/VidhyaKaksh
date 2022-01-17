@@ -1,4 +1,21 @@
-module.exports = function (app, db, upload) {
+module.exports = function (app, db, multer, path) {
+  //! Use of Multer
+  var storage = multer.diskStorage({
+    destination: (req, file, callBack) => {
+      callBack(null, "./public/materials/"); // './public/materials/' directory name where save the file
+    },
+    filename: (req, file, callBack) => {
+      callBack(
+        null,
+        file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+      );
+    },
+  });
+
+  var upload = multer({
+    storage: storage,
+  });
+
   app.post("/material/upload", upload.single("file"), (req, res) => {
     if (!req.file) {
       res.status(400);

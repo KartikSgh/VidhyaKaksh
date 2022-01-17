@@ -1,15 +1,20 @@
 import { Link, useNavigate } from "react-router-dom";
+import { bindActionCreators } from "redux";
+import { actionCreators } from "../state/index.js";
 import "../CSS/main.css";
 import "../CSS/reset.css";
 import "../CSS/class.css";
 import personsvg from "../images/person.svg";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useCallback, useEffect, useState } from "react";
 import HeaderComponent from "./HeaderComponent";
 import Axios from "axios";
 
 const ClassComponent = () => {
   const navigate = useNavigate();
+
+  const dispatch = useDispatch();
+  const { changeAssignmentId } = bindActionCreators(actionCreators, dispatch);
 
   const email = useSelector((state) => state.email);
   const classCode = useSelector((state) => state.classCode);
@@ -20,6 +25,7 @@ const ClassComponent = () => {
   const [announcements, setAnnouncements] = useState([]);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
+  const [upcommingAssignments, setUpcommingAssignments] = useState([]);
 
   const updateAnnouncements = useCallback(() => {
     Axios.get("http://localhost:3001/class/announcements", {
@@ -55,6 +61,24 @@ const ClassComponent = () => {
       });
   }, [classCode]);
 
+  const updateUpcommingAssignments = useCallback(() => {
+    Axios.get("http://localhost:3001/class/upcommingAssignments", {
+      params: {
+        classId: classCode,
+        email: email,
+      },
+    })
+      .then((res) => {
+        setUpcommingAssignments(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+        if (err.response) {
+          console.log(err.response.data);
+        }
+      });
+  }, [classCode, email]);
+
   useEffect(() => {
     Axios.get("http://localhost:3001/class", {
       params: {
@@ -66,6 +90,7 @@ const ClassComponent = () => {
         setSubject(res.data.subject);
         updateAnnouncements();
         updateComments();
+        updateUpcommingAssignments();
       })
       .catch((err) => {
         console.log(err);
@@ -75,7 +100,14 @@ const ClassComponent = () => {
           }
         }
       });
-  }, [email, classCode, navigate, updateAnnouncements, updateComments]);
+  }, [
+    email,
+    classCode,
+    navigate,
+    updateAnnouncements,
+    updateComments,
+    updateUpcommingAssignments,
+  ]);
 
   function handleAnnouncementPost() {
     Axios.post("http://localhost:3001/class/postAnnouncement", {
@@ -267,6 +299,31 @@ const ClassComponent = () => {
     });
   }
 
+  function renderUpcommingAssignments() {
+    if (upcommingAssignments.length === 0) {
+      return "Woohoo, no work due soon!";
+    } else {
+      return (
+        <ul>
+          {upcommingAssignments.map((item) => {
+            return (
+              <li
+                key={item.assignmentId}
+                className="py-2 cursor-pointer text-primary"
+                onClick={() => {
+                  changeAssignmentId(item.assignmentId);
+                  navigate("/class/classwork/assignment");
+                }}
+              >
+                {item.name}
+              </li>
+            );
+          })}
+        </ul>
+      );
+    }
+  }
+
   return (
     <>
       <HeaderComponent />
@@ -304,7 +361,7 @@ const ClassComponent = () => {
             <div className="col col-lg-3 d-none d-lg-block">
               <div className="border pt-4 px-4 pb-5">
                 <div className="mb-4">Upcoming</div>
-                <p className="mb-5">Woohoo, no work due soon!</p>
+                <div className="mb-5">{renderUpcommingAssignments()}</div>
                 <Link
                   to="/class/classwork"
                   className="d-block text-success text-end"

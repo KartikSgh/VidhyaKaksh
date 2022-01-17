@@ -46,23 +46,6 @@ const db = mysql.createPool({
   timezone: "+00:00",
 });
 
-//! Use of Multer
-var storage = multer.diskStorage({
-  destination: (req, file, callBack) => {
-    callBack(null, "./public/materials/"); // './public/materials/' directory name where save the file
-  },
-  filename: (req, file, callBack) => {
-    callBack(
-      null,
-      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
-    );
-  },
-});
-
-var upload = multer({
-  storage: storage,
-});
-
 //login requests
 require("./routes/loginRoute.js")(app);
 
@@ -79,7 +62,13 @@ require("./routes/classRoute.js")(app, db);
 require("./routes/peopleRoute.js")(app, db);
 
 //material request
-require("./routes/materialRoute.js")(app, db, upload);
+require("./routes/materialRoute.js")(app, db, multer, path);
+
+//classwork request
+require("./routes/classworkRoute.js")(app, db, multer, path);
+
+//assignment request
+require("./routes/assignmentRoute.js")(app, db, multer, path);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
