@@ -70,6 +70,9 @@ require("./routes/classworkRoute.js")(app, db, multer, path);
 //assignment request
 require("./routes/assignmentRoute.js")(app, db, multer, path);
 
+//grade request
+require("./routes/gradeRoute.js")(app, db);
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log("running on port", PORT);

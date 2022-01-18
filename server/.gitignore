@@ -7,6 +7,9 @@
 
 # testing
 /coverage
+/public/classwork
+/public/materials
+/public/submission
 
 # production
 /build
