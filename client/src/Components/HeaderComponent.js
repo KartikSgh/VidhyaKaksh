@@ -98,6 +98,15 @@ const HeaderComponent = () => {
           <div className="popup__pseudo"></div>
         </div>
       </div>
+      <div className="d-flex gap-3">
+        <button
+          className="btn btn-dark py-2"
+          style={{ whiteSpace: "nowrap" }}
+          onClick={() => logout()}
+        >
+          Log Out
+        </button>
+      </div>
     </header>
   );
 };

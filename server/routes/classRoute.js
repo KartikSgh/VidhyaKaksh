@@ -127,4 +127,24 @@ module.exports = function (app, db) {
       }
     });
   });
+  app.get("/class/upcommingAssignments", (req, res) => {
+    const sqlFetch =
+      "select assignmentId,name from assignment where classId=? and duetime>(select date_format(now(),'%Y-%m-%d %T')) and assignmentId not in (select a.assignmentId from grade a where a.classId=? and a.email=?)";
+    db.query(
+      sqlFetch,
+      [req.query.classId, req.query.classId, req.query.email],
+      (err, result) => {
+        if (err) {
+          res.status(500);
+          res.send("Internal Server Error");
+        }
+        if (result) {
+          res.send(result);
+        } else {
+          res.status(500);
+          res.send("Internal Server Error");
+        }
+      }
+    );
+  });
 };

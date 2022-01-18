@@ -117,7 +117,7 @@ const HomeComponent = () => {
       bg-white
     "
       >
-        <Link to="/" className="logo me-3">
+        <Link to="/" className="logo ml-3">
           <img src={applesvg} alt="Logo" />
         </Link>
 

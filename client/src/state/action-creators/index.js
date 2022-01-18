@@ -69,3 +69,12 @@ export const changeRole = (role) => {
     });
   };
 };
+
+export const changeAssignmentId = (id) => {
+  return (dispatch) => {
+    dispatch({
+      type: "changeAssignmentId",
+      payload: id,
+    });
+  };
+};

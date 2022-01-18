@@ -35,7 +35,7 @@ const MaterialComponent = () => {
 
   useEffect(() => {
     fetchMaterials();
-  }, [classCode, fetchMaterials]);
+  }, [classCode, fetchMaterials, role]);
 
   function handleFileChange(e) {
     setFile(e.target.files[0]);
@@ -106,7 +106,7 @@ const MaterialComponent = () => {
                   <div className="mx-3 my-3">
                     <input
                       type="file"
-                      className="py-3 px-3"
+                      className="form-control form-control-lg"
                       onChange={(e) => {
                         handleFileChange(e);
                       }}
