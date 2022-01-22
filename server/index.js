@@ -9,6 +9,7 @@ const multer = require("multer");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
+const nodemailer = require("nodemailer");
 
 const app = express();
 
@@ -27,7 +28,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(
   session({
-    key: "email",
+    key: "userEmail",
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
@@ -47,7 +48,7 @@ const db = mysql.createPool({
 });
 
 //login requests
-require("./routes/loginRoute.js")(app);
+require("./routes/loginRoute.js")(app, db);
 
 //logout request
 require("./routes/logoutRoute.js")(app);
@@ -59,7 +60,7 @@ require("./routes/homeRoute.js")(app, db);
 require("./routes/classRoute.js")(app, db);
 
 //people request
-require("./routes/peopleRoute.js")(app, db);
+require("./routes/peopleRoute.js")(app, db, nodemailer);
 
 //material request
 require("./routes/materialRoute.js")(app, db, multer, path);

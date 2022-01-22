@@ -1,4 +1,4 @@
-const reducer = (state = "krishna@gmail.com", action) => {
+const reducer = (state = "", action) => {
   if (action.type === "changeEmail") {
     return action.payload;
   } else {

@@ -1,7 +1,7 @@
 import { bindActionCreators } from "redux";
 import { actionCreators } from "../state/index.js";
 import Axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ClassCardComponent from "./ClassCardComponent";
 import "../CSS/common.css";
 import "../CSS/reset.css";
@@ -14,20 +14,52 @@ import image2 from "../images/image2.jpg";
 import image3 from "../images/image3.jpg";
 import image4 from "../images/image4.jpg";
 import { useSelector, useDispatch } from "react-redux";
-import { useState } from "react";
-import logout from "./utility/logout.js";
+import { useEffect, useState } from "react";
 
 const HomeComponent = () => {
   const email = useSelector((state) => state.email);
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
 
-  const { addClassCard } = bindActionCreators(actionCreators, dispatch);
+  const { addClassCard, changeEmail } = bindActionCreators(
+    actionCreators,
+    dispatch
+  );
 
   const [className, setClassName] = useState("");
   const [classSubject, setClassSubject] = useState("");
   const [classCode, setClassCode] = useState("");
   const [backgroundImage, setBackgroundImage] = useState("image1.png");
+
+  useEffect(() => {
+    Axios.defaults.withCredentials = true;
+    login();
+  });
+
+  function login() {
+    Axios.get("http://localhost:3001/login")
+      .then((res) => {
+        changeEmail(res.data.userEmail);
+      })
+      .catch(() => {
+        navigate("/Login");
+      });
+  }
+
+  function logout() {
+    Axios.get("http://localhost:3001/logout")
+      .then(() => {
+        navigate("/Login");
+      })
+      .catch((err) => {
+        if (err.response) {
+          console.log(err.response.data);
+        } else {
+          console.log(err);
+        }
+      });
+  }
 
   //function calls when submit button of ADD CLASS modal is clicked
   function handleAddNewClass() {
@@ -206,6 +238,7 @@ const HomeComponent = () => {
               <form className="">
                 <div className="mx-3 my-3">
                   <input
+                    type="number"
                     className="form-control py-3"
                     placeholder="Class code"
                     onChange={(e) => setClassCode(e.target.value)}
@@ -273,6 +306,7 @@ const HomeComponent = () => {
                 <div className="mx-3 my-3">
                   <div className="mb-3">
                     <input
+                      type="text"
                       className="form-control py-3"
                       placeholder="Class Name"
                       onChange={(e) => setClassName(e.target.value)}
@@ -280,6 +314,7 @@ const HomeComponent = () => {
                   </div>
                   <div className="mb-3">
                     <input
+                      type="text"
                       className="form-control py-3"
                       placeholder="Subject"
                       onChange={(e) => setClassSubject(e.target.value)}

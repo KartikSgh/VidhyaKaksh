@@ -110,6 +110,9 @@ const ClassComponent = () => {
   ]);
 
   function handleAnnouncementPost() {
+    if (announcement === "") {
+      return;
+    }
     Axios.post("http://localhost:3001/class/postAnnouncement", {
       classId: classCode,
       email: email,
@@ -127,6 +130,9 @@ const ClassComponent = () => {
   }
 
   function handlePostComment(messageDate) {
+    if (comment === "") {
+      return;
+    }
     document.getElementById("comment").value = "";
     Axios.post("http://localhost:3001/class/postComment", {
       messageDate: messageDate,
@@ -145,6 +151,9 @@ const ClassComponent = () => {
   }
 
   function handleDeletePost(time) {
+    if (!window.confirm("You are about to Delete Post!")) {
+      return;
+    }
     Axios.delete("http://localhost:3001/class/deletePost", {
       data: {
         time: time,
@@ -163,6 +172,9 @@ const ClassComponent = () => {
   }
 
   function handleDeleteComment(time) {
+    if (!window.confirm("You are about to Delete Comment!")) {
+      return;
+    }
     Axios.delete("http://localhost:3001/class/deleteComment", {
       data: {
         time: time,

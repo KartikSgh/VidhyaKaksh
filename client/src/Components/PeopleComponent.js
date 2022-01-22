@@ -33,7 +33,21 @@ const PeopleComponent = () => {
       });
   }, [updatePeopleList, classCode, navigate]);
 
-  function renderAddPeople() {
+  function handleAddPeople(teacher) {
+    // Axios.post("http://localhost:3001/people/sendEmail", {
+    //   to: "ks9153015@gmail.com",
+    //   code: "1234",
+    // })
+    //   .then((res) => {
+    //     console.log(res.data);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
+    console.log(teacher);
+  }
+
+  function renderAddTeacher() {
     if (role === 0) {
       return (
         <form className="d-flex gap-2 mb-4 border-bottom pb-3">
@@ -42,6 +56,31 @@ const PeopleComponent = () => {
               type="email"
               className="form-control py-2"
               placeholder="Add Teacher by Email"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => handleAddPeople(0)}
+            className="btn btn-primary"
+          >
+            Add
+          </button>
+        </form>
+      );
+    } else {
+      return null;
+    }
+  }
+
+  function renderAddStudent() {
+    if (role === 0) {
+      return (
+        <form className="d-flex gap-2 mb-4 border-bottom pb-3">
+          <div className="flex-grow-1">
+            <input
+              type="email"
+              className="form-control py-2"
+              placeholder="Add Student by Email"
             />
           </div>
           <button type="submit" className="btn btn-primary">
@@ -104,7 +143,7 @@ const PeopleComponent = () => {
           <h2 className="text-success border-bottom pb-3 mb-4">Teachers</h2>
         </div>
 
-        {renderAddPeople()}
+        {renderAddTeacher()}
 
         <ul className="d-flex flex-column gap-4">{renderList(0)}</ul>
       </section>
@@ -115,7 +154,7 @@ const PeopleComponent = () => {
           <h2 className="text-success border-bottom pb-3 mb-4">Students</h2>
         </div>
 
-        {renderAddPeople()}
+        {renderAddStudent()}
 
         <ul className="d-flex flex-column gap-4">{renderList(1)}</ul>
       </section>

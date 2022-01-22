@@ -3,7 +3,8 @@ import { Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { bindActionCreators } from "redux";
 import { actionCreators } from "../state/index.js";
-import "../CSS/login.css";
+import "../CSS/loginComponent.css";
+import { useEffect } from "react";
 
 const LoginComponent = () => {
   let navigate = useNavigate();
@@ -20,14 +21,17 @@ const LoginComponent = () => {
   );
   function fun() {
     //force redirect
-    navigate("/class");
+    navigate("/home");
   }
   //Link is used for make href type component and redirect to another page
+  useEffect(() => {
+    fun();
+  });
 
   return (
     <div className="login">
       <div>
-        <Link to="/home" className="btn btn-primary mx-2">
+        <Link to="/Login" className="btn btn-primary mx-2">
           Login
         </Link>
         <Button className="btn btn-danger mx-2" onClick={fun}>
