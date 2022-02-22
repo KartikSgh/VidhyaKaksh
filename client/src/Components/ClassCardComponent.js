@@ -34,6 +34,9 @@ const ClassCardComponent = () => {
   }, [email, updateClassCardList]);
 
   function handleCardDelete(code) {
+    if (!window.confirm("You are about to Delete the Class!")) {
+      return;
+    }
     Axios.delete("http://localhost:3001/home/delete", {
       data: {
         email: email,

@@ -43,6 +43,9 @@ const MaterialComponent = () => {
   }
 
   function handleFileUpload() {
+    if (!file) {
+      return;
+    }
     const formData = new FormData();
     formData.append("file", file);
     formData.append("fileName", fileName);

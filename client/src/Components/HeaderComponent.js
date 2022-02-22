@@ -1,13 +1,51 @@
-import { Link } from "react-router-dom";
-import logout from "./utility/logout.js";
+import { Link, useNavigate } from "react-router-dom";
 import personsvg from "../images/person.svg";
 import applesvg from "../images/apple.svg";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import "../CSS/common.css";
+import { useEffect } from "react";
+import { bindActionCreators } from "redux";
+import { actionCreators } from "../state/index.js";
+import Axios from "axios";
 
 const HeaderComponent = () => {
   const email = useSelector((state) => state.email);
   const role = useSelector((state) => state.role);
+
+  const navigate = useNavigate();
+
+  const dispatch = useDispatch();
+
+  const { changeEmail } = bindActionCreators(actionCreators, dispatch);
+
+  useEffect(() => {
+    Axios.defaults.withCredentials = true;
+    login();
+  });
+
+  function login() {
+    Axios.get("http://localhost:3001/login")
+      .then((res) => {
+        changeEmail(res.data.userEmail);
+      })
+      .catch(() => {
+        navigate("/Login");
+      });
+  }
+
+  function logout() {
+    Axios.get("http://localhost:3001/logout")
+      .then(() => {
+        navigate("/Login");
+      })
+      .catch((err) => {
+        if (err.response) {
+          console.log(err.response.data);
+        } else {
+          console.log(err);
+        }
+      });
+  }
 
   function renderGradeNav() {
     if (role === 0) {
@@ -38,7 +76,7 @@ const HeaderComponent = () => {
         bg-white
       "
     >
-      <Link to="/" className="logo mr-3">
+      <Link to="/home" className="logo mr-3">
         <img src={applesvg} alt="Logo" />
       </Link>
 

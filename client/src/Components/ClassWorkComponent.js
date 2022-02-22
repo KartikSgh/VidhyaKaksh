@@ -60,6 +60,13 @@ const ClassWorkComponent = () => {
   }
 
   function handleCreateAssignment() {
+    if (
+      assignmentTitle === "" ||
+      assignmentDescription === "" ||
+      dateAndTime === ""
+    ) {
+      return;
+    }
     const formData = new FormData();
     formData.append("file", file);
     formData.append("fileName", fileName);
