@@ -48,6 +48,10 @@ React server - `yarn start / npm start`
 
 Backend server - `npm run devStart`
 
+## SRS, UML Diagrams and DBMS schema
+
+https://drive.google.com/drive/folders/1LOn9bfqDEGIdnQeTsqLlQQ8XIoDymMca?usp=sharing
+
 #### Register
 ![Screenshot (242)](https://user-images.githubusercontent.com/56961805/155143707-715dd766-c64f-4f21-b444-72107c7bcc61.png)
 #### Login
